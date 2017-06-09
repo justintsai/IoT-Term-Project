@@ -42,7 +42,7 @@ def on_message(client, userdata, msg):
     # print(json_extractor[0]['macAddr'])
     # print(json_extractor[0]['data'].decode("hex"))
 
-    if json_extractor[0]['macAddr'] == "0000000005010433":
+    if json_extractor[0]['macAddr'] == "000000000501028f":
 
         string_value = json_extractor[0]['data'].decode("hex")
         print(float(string_value[0:3])/10)
