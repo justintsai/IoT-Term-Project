@@ -80,6 +80,8 @@ void loop() {
 
       // Serial1.println("AT+DTX=16,1234567890abcdef");
       // Serial1.println("AT+DTX=11,\"12345ABCdef\"");
+
+      past = now;
     }
     else { // in_use == true
       Serial.println("------------------------------");
@@ -106,7 +108,6 @@ void loop() {
       readbuffersize--;
     }
     Serial.println("things");
-    past = now;
     interrupts();
     if (in_use) {
       Serial.println("Delay 1 minute......");
