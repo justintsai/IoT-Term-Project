@@ -9,7 +9,7 @@ volatile long vib = 0;
 volatile boolean in_use = false;
 volatile unsigned long now, past;
 
-float tempC = 0.0, Humi = 0.0;
+float tempC = 25.6, Humi = 60.0;
 char readcharbuffer[20];
 int readbuffersize;
 char lora_status;
@@ -25,7 +25,7 @@ void setup() {
   Serial.begin(9600);
   Serial1.begin(9600);
   dht.begin();
-  pinMode(EP, INPUT); //set EP input for measurment
+  pinMode(EP, INPUT); // set EP input for measurment
   Serial.print(DHTTYPE);
   Serial.println(" test!");
   past = millis();
@@ -44,6 +44,7 @@ void loop() {
     in_use = false;
   }
   noInterrupts();
+  delay(5000); // avoid generating dirty data to tempC and Humi
   if (dht.read()) {
     tempC = dht.readTemperature();
     Humi = dht.readHumidity();
@@ -71,16 +72,6 @@ void loop() {
         in_use = false;
         Serial.println("No vibration detected!");
       }
-
-      sensorData = String(tempC * 10, 0) + String(Humi * 10, 0) + String(vib);
-
-      Serial.println("Ready to Send");
-      Serial.println("AT+DTX=" + String(sensorData.length()) + ",\"" + sensorData + "\"");
-      Serial1.println("AT+DTX=" + String(sensorData.length()) + ",\"" + sensorData + "\"");
-
-      // Serial1.println("AT+DTX=16,1234567890abcdef");
-      // Serial1.println("AT+DTX=11,\"12345ABCdef\"");
-
       past = now;
     }
     else { // in_use == true
@@ -95,12 +86,13 @@ void loop() {
       Serial.println("%");
 
       vib = 1;
-      sensorData = String(tempC * 10, 0) + String(Humi * 10, 0) + String(vib);
-
-      Serial.println("Ready to Send");
-      Serial.println("AT+DTX=" + String(sensorData.length()) + ",\"" + sensorData + "\"");
-      Serial1.println("AT+DTX=" + String(sensorData.length()) + ",\"" + sensorData + "\"");
     }
+
+    sensorData = String(tempC * 10, 0) + String(Humi * 10, 0) + String(vib);
+    Serial.println("Ready to Send");
+    Serial.println("AT+DTX=" + String(sensorData.length()) + ",\"" + sensorData + "\"");
+    Serial1.println("AT+DTX=" + String(sensorData.length()) + ",\"" + sensorData + "\"");
+
     readbuffersize = Serial1.available();
     while (readbuffersize) {
       lora_status = Serial1.read();
@@ -111,11 +103,11 @@ void loop() {
     interrupts();
     if (in_use) {
       Serial.println("Delay 1 minute......");
-      delay(1 * 60 * 1000);
+      delay(1 * 60 * 1000 -5000);
     }
     else {
       Serial.println("Delay 30 seconds...");
-      delay(30 * 1000);
+      delay(30 * 1000 -5000);
     }
   }
 }
