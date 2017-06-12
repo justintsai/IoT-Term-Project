@@ -18,7 +18,7 @@ mcs_data_format = {
          }
       },
       {
-         "dataChnId":"Vib_Display",
+         "dataChnId":"Vib2_Display",
          "values":{
             "value":"0"
          }

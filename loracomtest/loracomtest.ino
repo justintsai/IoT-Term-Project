@@ -9,7 +9,7 @@ volatile long vib = 0;
 volatile boolean in_use = false;
 volatile unsigned long now, past;
 
-float tempC = 25.6, Humi = 60.0;
+float tempC = 0.0, Humi = 0.0;
 char readcharbuffer[20];
 int readbuffersize;
 char lora_status;
