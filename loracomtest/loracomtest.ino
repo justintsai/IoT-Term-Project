@@ -1,4 +1,5 @@
 #include "LDHT.h"
+#include "LBattery.h"
 #define DHTPIN 3          // what pin we're connected to
 #define DHTTYPE DHT22     // using DHT11 sensor
 
@@ -9,7 +10,8 @@ volatile long vib = 0;
 volatile boolean in_use = false;
 volatile unsigned long now, past;
 
-float tempC = 0.0, Humi = 0.0;
+float tempC, Humi;
+int batt;
 char readcharbuffer[20];
 int readbuffersize;
 char lora_status;
@@ -43,8 +45,8 @@ void loop() {
   if (now - past >= 2 * 60 * 1000 && in_use) { // 2 minutes for test
     in_use = false;
   }
-  noInterrupts();
   delay(5000); // avoid generating dirty data to tempC and Humi
+  noInterrupts();
   if (dht.read()) {
     tempC = dht.readTemperature();
     Humi = dht.readHumidity();
@@ -61,7 +63,7 @@ void loop() {
       Serial.print(String(Humi, 1));
       Serial.println("%");
 
-      if (vib > 100) {
+      if (vib > 10) {
         Serial.print("Vibration = ");
         Serial.println(vib);
         vib = 1;
@@ -87,8 +89,26 @@ void loop() {
 
       vib = 1;
     }
+    Serial.print("Battery level is ");
+    batt = LBattery.level();
+    Serial.println(batt);
 
-    sensorData = String(tempC * 10, 0) + String(Humi * 10, 0) + String(vib);
+    switch (batt) {
+      case 0:
+        batt = 0;
+        break;
+      case 33:
+        batt = 1;
+        break;
+      case 66:
+        batt = 2;
+        break;
+      case 100:
+        batt = 3;
+        break;
+    }
+
+    sensorData = String(tempC * 10, 0) + String(Humi * 10, 0) + String(vib) + String(batt);
     Serial.println("Ready to Send");
     Serial.println("AT+DTX=" + String(sensorData.length()) + ",\"" + sensorData + "\"");
     Serial1.println("AT+DTX=" + String(sensorData.length()) + ",\"" + sensorData + "\"");
@@ -103,11 +123,11 @@ void loop() {
     interrupts();
     if (in_use) {
       Serial.println("Delay 1 minute......");
-      delay(1 * 60 * 1000 -5000);
+      delay(1 * 60 * 1000 - 5000);
     }
     else {
       Serial.println("Delay 30 seconds...");
-      delay(30 * 1000 -5000);
+      delay(30 * 1000 - 5000);
     }
   }
 }
