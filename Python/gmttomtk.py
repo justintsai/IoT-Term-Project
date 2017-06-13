@@ -54,14 +54,8 @@ def on_message(client, userdata, msg):
         print(float(string_value[3:6])/10)
         print(string_value[6:7])
         battery = string_value[7:8]
-        if battery == '0':
-            battery = 0
-        elif battery == '1':
-            battery = 33
-        elif battery == '2':
-            battery = 66
-        elif battery == '3':
-            battery = 100
+        d = {'0': 0, '1': 33, '2': 66, '3':100}
+        battery = d.get(battery, 0)
         print(battery)
         print("")
         mcs_data_format['datapoints'][0]['values']['value'] = float(string_value[0:3])/10
